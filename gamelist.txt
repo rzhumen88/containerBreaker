@@ -1,0 +1,8 @@
+Ren'py Archive (*.rpa);scripts/renpy/RPA.py
+Postal 1 (*.sak);scripts/postal1/SAK.py
+Persona 1 Event Containers (*.BIN);scripts/persona1psp/p1bin.py
+Tsukihime (*.sar);scripts/tsukihime/SAR.py
+Tsukihime (*.nsa);scripts/tsukihime/NSA.py
+Grand Theft Auto: 3 / Vice City(*.img);scripts/gta3/IMG.py
+Grand Theft Auto: San Andreas (*.img);scripts/gtasa/IMG.py
+Gulman 2: The Secret of the Magic Crystals (*.pak);scripts/verus engine/gulman2.py
