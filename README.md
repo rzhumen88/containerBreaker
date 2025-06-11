@@ -6,7 +6,7 @@
 
 ### Adding external scripts
 - Open **gamelist.txt** and append a new line containing:
-	*Gamename* (**.extention*);*python module path*
+	*Gamename* (**.extention*);*python module path* 
 	Example: `Ren'py Archive (*.rpa);scripts/renpy/RPA.py`
 	
 - Create a script file *(python module path)*
