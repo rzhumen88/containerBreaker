@@ -1,7 +1,6 @@
 import os
 import sys
 import warnings
-from datetime import datetime
 import struct
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QTreeWidgetItemIterator, QFileDialog, QApplication, QWidget, QPushButton, QVBoxLayout, QTreeWidget, QTreeWidgetItem, QLabel, QComboBox
@@ -27,8 +26,11 @@ class Window(QWidget):
         self.bBuild.clicked.connect(self.build)
         self.bFAdd.clicked.connect(self.addFile)
         self.bFExt.clicked.connect(self.extFile)
+        self.bFEdit.clicked.connect(self.editFile)
         self.bFReplace.clicked.connect(self.replFile)
         self.bFDel.clicked.connect(self.delFile)
+        self.bAExt.clicked.connect(self.allExtract)
+        self.bAImp.clicked.connect(self.allImport)
         self.treeWidget.itemDoubleClicked.connect(self.openItem)
 
     def openFormatChooser(self):
@@ -118,6 +120,27 @@ class Window(QWidget):
         self.cleantmp()
         print('Tree cleared!')
 
+    def allExtract(self):
+        """Extracts files to the specified directory"""
+        self.expPath = QFileDialog.getExistingDirectory(None, "Select path to the export directory", './') + '/'
+        for self.item in self.treeFiles():
+            self.filename, self.bytestream, self.csize, self.args = self.item
+            self.dirlist = self.filename.split('/')[:-1]
+            self.filenamenodir = self.filename.split('/')[-1]
+            self.curdir = ''
+            for self.dir in self.dirlist:
+                self.curdir += '/' + self.dir
+                self.fullpath = self.expPath + '/' + self.curdir
+                if not os.path.isdir(self.fullpath):
+                    os.mkdir(self.fullpath)
+            with open(self.fullpath+'/'+self.filenamenodir, 'wb') as self.f:
+                self.f.write(self.bytestream)
+            print(f'Extracted: {self.filenamenodir} | Size:{round(len(self.bytestream), 2)//1000}kb')
+                
+    def allImport(self):
+        '''todo'''
+        pass
+        
     def addFile(self):
         """Adds sibling to the selected node, writes (str_object:raw bytes) into a dictionary"""
         for self.item in self.treeWidget.selectedItems():
@@ -144,6 +167,10 @@ class Window(QWidget):
                 self.treeWidget.takeTopLevelItem(self.treeWidget.indexFromItem(self.item).row())
             print(f'{self.delitem} deleted!')
 
+    def editFile(self):
+        for self.item in self.treeWidget.selectedItems():
+            self.editItem = editItem(self.item)
+            
     def extFile(self):
         """Extracts file(s) into choosen directory"""
         for self.item in self.treeWidget.selectedItems():
@@ -176,6 +203,7 @@ class Window(QWidget):
             print(f'{self.item.text(0)} was replaced with {self.openPath}')
             
     def openItem(self):
+        """Launches selected file (from temp directory)"""
         for self.item in self.treeWidget.selectedItems():
             if self.item.data(1,0) == '-':
                 return 1
@@ -184,6 +212,33 @@ class Window(QWidget):
             with open(self.tmpName, 'wb') as self.f:
                 self.f.write(self.rawFile)
             os.startfile(os.path.dirname(os.path.abspath(__file__))+'/'+self.tmpName)
+
+class editItem(QWidget):
+    def __init__(self, item):
+        super().__init__()
+        self.item = item
+        uic.loadUi('itemEdit.ui', self)
+        self.name.setText(self.item.data(0,0))
+        self.args.setPlainText(self.item.data(4,0))
+        self.bOK.clicked.connect(self.ok)
+        self.bCancel.clicked.connect(self.cancel)
+        #print(item.data(0, 0))
+        #print(item.data(4, 0))
+        self.show()
+        
+    def clear(self):
+        self.name.clear()
+        self.args.clear()
+
+    def ok(self):
+        self.item.setText(0, self.name.text())
+        self.item.setText(4, self.args.toPlainText())
+        self.cancel()
+        
+    def cancel(self):
+        self.clear()
+        self.hide()
+    
 
 class FormatChooser(QWidget):
     def __init__(self, mainWindow):
@@ -204,7 +259,6 @@ class FormatChooser(QWidget):
         self.pushButton.clicked.connect(self.ok)
         
     def ok(self):
-        print(self.comboBox.currentIndex())
         gamename = self.items[self.comboBox.currentIndex()]
         moduleName = self.modules[self.comboBox.currentIndex()]
         modulePath = moduleName

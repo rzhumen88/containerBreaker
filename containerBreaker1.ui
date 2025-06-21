@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>990</width>
-    <height>491</height>
+    <height>490</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -90,7 +90,7 @@
     </property>
    </column>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>850</x>
@@ -132,13 +132,13 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>850</x>
      <y>90</y>
      <width>141</width>
-     <height>91</height>
+     <height>151</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -160,6 +160,13 @@
      </widget>
     </item>
     <item>
+     <widget class="QPushButton" name="bFEdit">
+      <property name="text">
+       <string>Edit File Properties</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QPushButton" name="bFReplace">
       <property name="text">
        <string>Replace File</string>
@@ -170,6 +177,35 @@
      <widget class="QPushButton" name="bFDel">
       <property name="text">
        <string>Delete File</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>850</x>
+     <y>260</y>
+     <width>141</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_3">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QPushButton" name="bAExt">
+      <property name="text">
+       <string>Extract All Files</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="bAImp">
+      <property name="text">
+       <string>Import Directory</string>
       </property>
      </widget>
     </item>
