@@ -4,5 +4,12 @@ Persona 1 Event Containers (*.BIN);scripts/persona1psp/p1bin.py
 Tsukihime (*.sar);scripts/tsukihime/SAR.py
 Tsukihime (*.nsa);scripts/tsukihime/NSA.py
 Grand Theft Auto: 3 / Vice City(*.img);scripts/gta3/IMG.py
+Grand Theft Auto: 3 / Vice City(*.raw);scripts/gta3/RAW.py
 Grand Theft Auto: San Andreas (*.img);scripts/gtasa/IMG.py
 Gulman 2: The Secret of the Magic Crystals (*.pak);scripts/verus engine/gulman2.py
+Gulman 3 (*.pak);scripts/verus engine/gulman3.py
+Swiborg: First Blood (*.pak);scripts/verus engine/swiborg.py
+Green Green OVERDRIVE EDITION (*.arc);scripts/greengreen/overdrivearc.py
+Green Green OVERDRIVE EDITION Buriko (*.arc);scripts/greengreen/overdrivearcburiko.py
+Hangar 13's Mafia DE/3 Music Containers (*.pck);scripts/hangar13/PCK.py
+Hangar 13's Mafia DE/3 Image Containers (*.pckg);scripts/hangar13/PCKG.py

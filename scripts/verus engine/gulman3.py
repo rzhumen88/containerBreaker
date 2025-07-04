@@ -22,6 +22,7 @@ class Container:
     def getFile(self, fname, offset, size, csize, args):
         print(f'Decrypting: {fname}')
         print(f'Key: {args}')
+        print(self.g2pack.getRaw(offset, csize))
         self.aes = createEncryptionTable(args)
         self.raw = self.g2pack.getRaw(offset, csize)
         return zlib.decompress(decrypt(self.raw, self.aes)[0])
@@ -77,15 +78,20 @@ class G2Pack:
             self.header = self.f.read(12)
             self.HEADER = self.header[:4]
             if self.HEADER == b'2PAK':
-                raise ValueError("Gulman 3 and Verus Engine pack files aren't supported!")
-            if self.HEADER != b'PACK':
+                self.game = 'g3'
+            if self.HEADER not in (b'PACK', b'2PAK'):
                 raise ValueError('Not a Gulman 2 pack file!')
             self.fstruct_ptr = struct.unpack('I', self.header[4:8])[0]
             if self.game == 'sw':
                 self.totalFiles = struct.unpack('I', self.header[8:12])[0] // 64 # swiborg
             elif self.game == 'g2':
                 self.totalFiles = struct.unpack('I', self.header[9:13]+b'\x00')[0]
+            elif self.game == 'g3':
+                self.f.seek(0)
+                _, self.fstruct_ptr, _, self.totalFiles = struct.unpack('IIII', self.f.read(16))
             self.header = b''
+            self.totalFiles = self.totalFiles >> 8
+            print(self.totalFiles)
             for self.i in range(self.totalFiles):
                 self.f.seek(self.fstruct_ptr)
                 self.fstruct = self.f.read()
@@ -97,10 +103,16 @@ class G2Pack:
                     self.fname = self.fstruct[0x100*self.i:0x100*self.i+0xf8]
                     self.foffset = struct.unpack('I', self.fstruct[0x100*self.i+0xf8:0x100*self.i+0xfc])[0]
                     self.fsize = struct.unpack('I', self.fstruct[0x100*self.i+0xfc:0x100*self.i+0x100])[0]
+                elif self.game == 'g3':
+                    self.fname = self.fstruct[0x100*self.i:0x100*self.i+0xf0]
+                    self.foffset, _, self.fsize, _ = struct.unpack('IIII', self.fstruct[0x100*self.i+0xf0:0x100*self.i+0x100])
                 self.fname = self.fname.replace(b'\x00', b'').decode('cp1251')
                 self.f.seek(self.foffset)
-                self.fsizeunc = struct.unpack('I', self.f.read(4))[0]
-                self.files[self.i] = (self.fname, self.foffset, self.fsize, self.fsizeunc )
+                self.fsizeunc = struct.unpack('Q', self.f.read(8))[0]
+                if self.game == 'g3':
+                    self.files[self.i] = (self.fname, self.foffset+4, self.fsize-4, self.fsizeunc)
+                else:
+                    self.files[self.i] = (self.fname, self.foffset, self.fsize, self.fsizeunc)
                 #print((self.fname, self.foffset, self.fsize))
 
     def unpack(self, d: str):
@@ -113,7 +125,7 @@ class G2Pack:
             self.enc = createEncryptionTable(self.fname)
             with open(self.pak, 'rb') as self.f:
                 self.f.seek(self.foffset)
-                self.decSize = struct.unpack('I', self.f.read(4))[0]
+                self.decSize = struct.unpack('Q', self.f.read(8))[0]
                 self.f.seek(self.foffset+4)
                 self.f = self.f.read(self.size)
                 self.dec, _ = decrypt(self.f, self.enc)
@@ -151,9 +163,9 @@ class G2Pack:
                             self.encrypted[self.j] = self.f[self.j] ^ self.key[self.j]
                         self.f = self.encrypted.tobytes()
                         self.filesdict[self.fnum] = (self.path, self.i, len(self.f)+4)
-                        self.buffer += struct.pack('<I', self.uncSize)
+                        self.buffer += struct.pack('Q', self.uncSize)
                         self.buffer += self.f
-                        self.i += len(self.f)+4
+                        self.i += len(self.f)+8
                         self.fnum += 1
                         print(f'[{self.fnum}] {self.path} imported!')
             self.fstruct_ptr = self.i

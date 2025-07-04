@@ -7,7 +7,7 @@ from g2aes import * #gulman 2 aes encryption
 
 class Container:
     def __init__(self, fname):
-        self.g2pack = G2Pack('g2')
+        self.g2pack = G2Pack('sw')
         self.g2pack.read(fname)
 
     def getTable(self):
@@ -25,8 +25,7 @@ class Container:
         self.aes = createEncryptionTable(args)
         self.raw = self.g2pack.getRaw(offset, csize)
         return zlib.decompress(decrypt(self.raw, self.aes)[0])
-        
-                
+             
     def buildContainer(self, iterator, saveDir):
         self.files = []
         self.indextbl = []
@@ -45,16 +44,16 @@ class Container:
                 self.obfuscated = b''.join(self.obfuscated) #more optimized
                 self.file = struct.pack('I', self.rawSize) + self.obfuscated
                 self.files.append(self.file)
-                self.index = struct.pack('248s', self.fname.encode('cp1251')) + struct.pack('I', self.i) + struct.pack('I', self.i + len(self.file))
+                self.index = struct.pack('56s', self.fname.encode('cp1251')) + struct.pack('I', self.i) + struct.pack('I', self.i + len(self.file))
                 self.indextbl.append(self.index)
                 self.i += len(self.file)
             self.f.write(struct.pack('I', self.i))
-            self.f.write(struct.pack('I', len(self.files)<<8))
+            self.f.write(struct.pack('I', len(self.files)*64))
             for self.file in self.files:
                 self.f.write(self.file)
             for self.index in self.indextbl:
                 self.f.write(self.index)
-    
+
 class G2Pack:
     def __init__(self, game):
         """creating blank file"""
@@ -100,8 +99,7 @@ class G2Pack:
                 self.fname = self.fname.replace(b'\x00', b'').decode('cp1251')
                 self.f.seek(self.foffset)
                 self.fsizeunc = struct.unpack('I', self.f.read(4))[0]
-                self.files[self.i] = (self.fname, self.foffset, self.fsize, self.fsizeunc )
-                #print((self.fname, self.foffset, self.fsize))
+                self.files[self.i] = (self.fname, self.foffset, self.fsize, self.fsizeunc)
 
     def unpack(self, d: str):
         """unpacks pack file to the given directory"""
